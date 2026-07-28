@@ -3,8 +3,10 @@
 SMART is a MATLAB/Psychtoolbox experiment for studying audiovisual
 statistical learning using visual target responses. The experiment
 supports both a visualization-only mode for development and a full
-hardware mode using the VPixx ecosystem (VIEWPixx + DATAPixx +
-RESPONSEPixx).
+hardware mode. This implementation is intended for laboratory experiments 
+with simultaneous EEG acquisition and hardware  synchronization 
+using the VPixx ecosystem (VIEWPixx + DATAPixx + RESPONSEPixx), 
+Pixel Mode triggering, and an EEG-specific counterbalancing scheme.
 
 ## Features
 
@@ -67,10 +69,20 @@ both ISI conditions and response mappings across participants.
 
 ### Response mappings
 
+The experiment counterbalances the mapping between sequence elements and response buttons using four predefined mappings:
+
 - `AXBY`
 - `BYAX`
 - `YBXA`
 - `XAYB`
+
+Unlike the original behavioral Gorilla version, these mappings were selected 
+so that both halves of every sequence always contain one unidimensional (A/B) 
+and one multidimensional (X/Y) element. This preserves the intended 
+counterbalancing while avoiding systematic differences in the temporal 
+distribution of UNI and MULTI elements across the sequence, which is 
+important for EEG experiments where the two stimulus classes may evoke 
+different neural activity.
 
 ## Trigger Scheme
 
