@@ -74,7 +74,7 @@ function [results,events] = RunTaskBlock(cfg,state,textures,audio,taskTrials,vio
     order = randperm(height(blockTrials));
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Temporary: keep only two trials while testing
+    % Temporary: keep only two trials while testing (comment to nulify)
     order = order(1:2);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

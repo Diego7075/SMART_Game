@@ -58,6 +58,20 @@ SMART
 The script creates `data/ISI_Assignments.csv` and automatically balances
 both ISI conditions and response mappings across participants.
 
+### ISI conditions
+
+- 0 ms
+- 250 ms
+- 500 ms
+- 1100 ms
+
+### Response mappings
+
+- `AXBY`
+- `BYAX`
+- `YBXA`
+- `XAYB`
+
 ## Trigger Scheme
 
   Phase            RGB
@@ -94,7 +108,22 @@ Each trigger is displayed for three frames.
 
 ## Validation
 
-1.  Run the validation script.
-2.  Test Visualization mode.
-3.  Test Full Hardware mode.
-4.  Verify Pixel Mode triggers.
+Before collecting experimental data, it is recommended to:
+
+1. Run the validation script.
+2. Test Visualization mode.
+3. Test Full Hardware mode.
+4. Verify Pixel Mode triggers.
+
+### Reducing the number of trials during development
+
+For debugging purposes, both `SMART_Task.m` and `SMART_Generalization.m` contain the following temporary code block:
+
+```matlab
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Temporary: keep only two trials while testing (comment to nulify)
+order = order(1:2);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+```
+
+Leaving this code active limits each randomized block to two trials. Comment out (or remove) these lines before running the complete experiment.

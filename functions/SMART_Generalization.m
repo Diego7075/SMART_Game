@@ -43,7 +43,7 @@ function [results,events] = RunGeneralizationBlock(cfg,state,textures,audio,gene
         order = randperm(height(generalizationTrials));
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % Temporary: limit each repetition to two sequences
+        % Temporary: keep only two trials while testing (comment to nulify)
         order = order(1:2);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
