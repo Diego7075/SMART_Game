@@ -113,7 +113,7 @@ function cfg = SMART_Config(projectRoot)
     cfg.audioLatencyClass = 2; % PTB latency mode (higher = lower latency)
     cfg.audioChannels = 2; % Stereo playback
     cfg.audioVolume = 1.0;  % Full playback volume
-    cfg.audioDeviceIndex = -1; % PTB chooses the system default audio device
+    cfg.audioDeviceIndex = 2; % PTB chooses the system default audio device
     
     % PTB settings
     cfg.skipSyncTestsVisualization = 1; % Skip timing tests while developing (specific for the laptop)
