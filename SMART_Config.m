@@ -25,8 +25,7 @@ function cfg = SMART_Config(projectRoot)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Screen numbers used by PTB
     cfg.laptopScreenNumber = 0; % Primary monitor used during development
-    % cfg.laboratoryScreenNumber = 3;  % VIEWPixx stimulus displays
-    cfg.laboratoryScreenNumber = 3;
+    cfg.laboratoryScreenNumber = 3; % VIEWPixx stimulus displays
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % RGB colors used throughout the experiment
@@ -80,7 +79,7 @@ function cfg = SMART_Config(projectRoot)
     cfg.triggerFrames = 3; % Amount of frames the pixel is held on screen
     
     % Experiment structure
-    cfg.nTaskBlocks = 8; % Number of blocks durint task
+    cfg.nTaskBlocks = 9; % Number of blocks durint task, increased to 9
     cfg.violationBlock = 7; % Block containing random-sequence violations
     cfg.practiceTrials = 8; % Number of practice trials
     cfg.taskTrialsPerBlock = 48; % Trials per task block

@@ -42,10 +42,10 @@ function [results,events] = RunGeneralizationBlock(cfg,state,textures,audio,gene
         % Randomly select the sound sequences presented in this pass
         order = randperm(height(generalizationTrials));
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % Temporary: keep only two trials while testing (comment to nulify)
-        order = order(1:2);
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % % Temporary: keep only two trials while testing (comment to nulify)
+        % order = order(1:2);
+        % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
         for index = 1:numel(order)
     
