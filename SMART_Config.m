@@ -24,7 +24,8 @@ function cfg = SMART_Config(projectRoot)
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Screen numbers used by PTB
-    cfg.laptopScreenNumber = 0; % Primary monitor used during development
+    cfg.laptopScreenNumber = 0; % Primary monitor used during development (laptop)
+    % cfg.laptopScreenNumber = 1; % Primary monitor used during development (desktop)
     cfg.laboratoryScreenNumber = 3; % VIEWPixx stimulus displays
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -113,8 +114,13 @@ function cfg = SMART_Config(projectRoot)
     cfg.audioLatencyClass = 2; % PTB latency mode (higher = lower latency)
     cfg.audioChannels = 2; % Stereo playback
     cfg.audioVolume = 1.0;  % Full playback volume
-    cfg.audioDeviceIndex = 2; % PTB chooses the system default audio device
-    
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % PsychPortAudio output
+    % cfg.audioDeviceIndex = 1; % PTB chooses the system 48 KHz audio device (headphone jack - desktop)
+    cfg.audioDeviceIndex = 2; % PTB chooses the system 48 KHz audio device (speakers - laptop)
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     % PTB settings
     cfg.skipSyncTestsVisualization = 1; % Skip timing tests while developing (specific for the laptop)
     cfg.skipSyncTestsFullPipeline = 0; % Run timing tests during experiments (specific for the ViewPixx)

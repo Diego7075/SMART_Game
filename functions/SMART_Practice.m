@@ -48,13 +48,14 @@ function [results,events] = RunPracticeBlock(cfg,state,textures,audio,practiceTr
         % Check whether this practice attempt meets the passing criteria
         accurate = all(attemptResults.Correct);
     
-        if cfg.practiceRequiresTimelyResponses
-            timely = all(~attemptResults.Slow);
-        else
-            timely = true;
-        end
+        % if cfg.practiceRequiresTimelyResponses
+        %     timely = all(~attemptResults.Slow);
+        % else
+        %     timely = true;
+        % end
     
-        passed = accurate && timely;
+        % passed = accurate && timely;
+        passed = accurate;
         results = [results; attemptResults];
         events = [events; attemptEvents];
     

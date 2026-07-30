@@ -73,10 +73,10 @@ function [results,events] = RunTaskBlock(cfg,state,textures,audio,taskTrials,vio
     % Randomize the trial order within this block
     order = randperm(height(blockTrials));
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Temporary: keep only two trials while testing (comment to nulify)
-    order = order(1:2);
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Choose the Task lenght (2 trials per block or all trials per block)
+    if mode.quickTest
+        order = order(1:2);
+    end
 
     % Create the structures used to store this block
     results = SMART_Participant('EmptyTrialResults');

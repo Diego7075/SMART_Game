@@ -32,6 +32,8 @@ Pixel Mode triggering, and an EEG-specific counterbalancing scheme.
     flac_task
     flac_generalization
 
+All auditory stimuli are stored as lossless FLAC files sampled at 48 kHz to maximize compatibility across audio devices and Psychtoolbox installations
+
 Run the experiment with:
 
 ``` matlab

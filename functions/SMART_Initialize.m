@@ -257,6 +257,18 @@ function mode = SelectExecutionMode
         mode.name = 'full_pipeline';
         mode.useHardware = true;
     end
+    
+    fprintf('\nExperiment length\n');
+    fprintf('1 - Quick test (2 trials)\n');
+    fprintf('2 - Full experiment (all trials)\n\n');
+    
+    selection = input('Select experiment length: ','s');
+    
+    while ~ismember(selection,{'1','2'})
+        selection = input('Enter 1 or 2: ','s');
+    end
+    
+    mode.quickTest = strcmp(selection,'1');
 end
 
 function textures = CreateSMARTTextures(cfg,state)
