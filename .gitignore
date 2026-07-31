@@ -1,2 +1,16 @@
 # Participant data
 data/
+
+# MATLAB temporary files
+*.asv
+*.m~
+*.mex*
+slprj/
+codegen/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
