@@ -144,15 +144,15 @@ function [result,events] = RunGeneralizationTrial(cfg,state,textures,audio,trial
 
     
     % Use the audio hardware timing as the experimental reference
-    soundOnset = audioStatus.StartTime;
-    
-    if ismember('soundDuration_ms', trial.Properties.VariableNames)
-        soundDuration = trial.soundDuration_ms / 1000;
-    else
-        soundDuration = size(audio.waveforms{audioIndex},2) / audio.sampleRate;
-    end
-    
-    soundOffset = soundOnset + soundDuration;
+soundOnset = audioStatus.StartTime;
+
+if ismember('soundDuration_ms', trial.Properties.VariableNames)
+    soundDuration = trial.soundDuration_ms / 1000;
+else
+    soundDuration = size(audio.waveforms{audioIndex},2) / audio.sampleRate;
+end
+
+soundOffset = soundOnset + soundDuration;
     
     % Define the exact requested response onset
     responseStart = soundOffset + cfg.currentISI_ms / 1000;

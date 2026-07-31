@@ -153,15 +153,30 @@ function [result,events] = RunVisualTargetTrial(cfg,state,textures,audio,trial,m
     % events = [events; responseEvents];
 
     % Obtain the actual audio timing reported by PsychPortAudio
+    % audioStatus = PsychPortAudio('GetStatus',state.pahandle);
+    % 
+    % if audioStatus.StartTime <= 0
+    %     error('PsychPortAudio did not return a valid sound onset time');
+    % end
+
     audioStatus = PsychPortAudio('GetStatus',state.pahandle);
-    
-    if audioStatus.StartTime <= 0
-        error('PsychPortAudio did not return a valid sound onset time');
+
+    while audioStatus.StartTime <= 0
+        WaitSecs('YieldSecs',0.001);
+        audioStatus = PsychPortAudio('GetStatus',state.pahandle);
     end
+
     
     % Use the audio hardware timing as the experimental reference
     soundOnset = audioStatus.StartTime;
-    soundOffset = soundOnset + trial.soundDuration_ms / 1000;
+    
+    if ismember('soundDuration_ms', trial.Properties.VariableNames)
+        soundDuration = trial.soundDuration_ms / 1000;
+    else
+        soundDuration = size(audio.waveforms{audioIndex},2) / audio.sampleRate;
+    end
+    
+    soundOffset = soundOnset + soundDuration;
     
     % Define the exact requested response onset
     responseStart = soundOffset + cfg.currentISI_ms / 1000;
