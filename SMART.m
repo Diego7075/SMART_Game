@@ -25,7 +25,8 @@ mode = SMART_Initialize('SelectExecutionMode');
 % Requests a valid participant identifier and prevents unsafe filenames
 participantID = SMART_Participant('RequestParticipantID',cfg);
 
-% Assign the participant to the least represented ISI (i.e. 0 ms, 250 ms) x mapping (i.e. AXBY, XAYB) condition and generate the participant-specific randomization seed
+% Assign the participant to the least represented ISI (i.e. 0 ms, 250 ms) x mapping 
+% (i.e. AXBY, XAYB) condition and generate the participant-specific randomization seed
 assignment = SMART_Participant('AssignParticipantConditions',cfg,participantID);
 cfg.currentISI_ms = assignment.isiMs;
 rng(assignment.randomSeed,'twister');
@@ -60,7 +61,8 @@ try
     for blockNumber = 1:cfg.nTaskBlocks
 
         % Run one learning block at a time and append its trial and event data
-        [blockResults,blockEvents] = SMART_Task('RunTaskBlock',cfg,state,textures,audio,trials.task,trials.violation,blockNumber,mode);
+        [blockResults,blockEvents] = SMART_Task('RunTaskBlock',cfg,state,textures, ...
+            audio,trials.task,trials.violation,blockNumber,mode);
         results.trials = [results.trials; blockResults];
         results.events = [results.events; blockEvents];
         SMART_Participant('SaveSMARTResults',cfg,results,participantID,false);
@@ -73,7 +75,8 @@ try
 
     % Display the generalization instructions and run the generalization phase
     SMART_Display('ShowGeneralizationInstructions',cfg,state,textures,mode);
-    [generalizationResults,generalizationEvents] = SMART_Generalization('RunGeneralizationBlock',cfg,state,textures,audio,trials.generalization,mode);
+    [generalizationResults,generalizationEvents] = SMART_Generalization('RunGeneralizationBlock', ...
+        cfg,state,textures,audio,trials.generalization,mode);
     results.trials = [results.trials; generalizationResults];
     results.events = [results.events; generalizationEvents];
     results.completed = true;

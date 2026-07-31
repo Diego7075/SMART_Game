@@ -82,7 +82,8 @@ function trials = LoadSMARTTrials(cfg,assignment)
     trials.practice = SMART_Participant('BuildTrialTable',practiceRaw(practiceRows,:),cfg.practiceSoundFolder,'practice',assignment.mapping);
     trials.task = allTask(allTask.Block ~= cfg.violationBlock,:);   
     trials.violation = allTask(allTask.Block == cfg.violationBlock,:);
-    trials.generalization = SMART_Participant('BuildGeneralizationTable',generalizationRaw(generalizationRows,:),cfg.generalizationSoundFolder,assignment.mapping);
+    trials.generalization = SMART_Participant('BuildGeneralizationTable',generalizationRaw(generalizationRows,:), ...
+        cfg.generalizationSoundFolder,assignment.mapping);
     
     % Check that every phase contains the expected number of trials
     if height(trials.practice) ~= cfg.practiceTrials
@@ -136,7 +137,8 @@ function assignment = AssignParticipantConditions(cfg,participantID)
 
     for isi = 1:numel(cfg.isiConditionsMs)
         for map = 1:numel(mappingOptions)
-            cellCounts(isi,map) = sum(assignments.ISI_ms == cfg.isiConditionsMs(isi) & strcmp(assignments.Mapping,mappingOptions(map)) & assignments.Status ~= "aborted");
+            cellCounts(isi,map) = sum(assignments.ISI_ms == cfg.isiConditionsMs(isi) & strcmp(assignments.Mapping, ...
+                mappingOptions(map)) & assignments.Status ~= "aborted");
         end
     end
 

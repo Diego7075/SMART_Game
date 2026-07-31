@@ -59,7 +59,8 @@ function varargout = SMART_Task(action,varargin)
     end
 end
 
-function [results,events] = RunTaskBlock(cfg,state,textures,audio,taskTrials,violationTrials,blockNumber,mode)
+function [results,events] = RunTaskBlock(cfg,state,textures,audio, ...
+    taskTrials,violationTrials,blockNumber,mode)
     
     % Select the trials that belong to this block
     if blockNumber == cfg.violationBlock
@@ -91,14 +92,16 @@ function [results,events] = RunTaskBlock(cfg,state,textures,audio,taskTrials,vio
     for trialNumber = 1:numel(order)
         trial = blockTrials(order(trialNumber),:);
     
-        [trialResult,trialEvents] = SMART_Task('RunVisualTargetTrial',cfg,state,textures,audio,trial,mode,phase,blockNumber,trialNumber);
+        [trialResult,trialEvents] = SMART_Task('RunVisualTargetTrial',cfg, ...
+            state,textures,audio,trial,mode,phase,blockNumber,trialNumber);
     
         results = [results; trialResult];
         events = [events; trialEvents];
     end
 end
 
-function [result,events] = RunVisualTargetTrial(cfg,state,textures,audio,trial,mode,phase,blockNumber,trialNumber)
+function [result,events] = RunVisualTargetTrial(cfg,state,textures,audio, ...
+    trial,mode,phase,blockNumber,trialNumber)
     
     % Prepare the trial
     events = SMART_Participant('EmptyEventResults');
@@ -115,49 +118,10 @@ function [result,events] = RunVisualTargetTrial(cfg,state,textures,audio,trial,m
     
     % Present the sound together with the trial-onset trigger
     trialTrigger = SMART_Task('GetTrialTrigger',cfg,phase);
-    [soundOnset,triggerEvents] = SMART_Display('PresentTriggeredTexture',cfg,state,textures.empty,trialTrigger,phase,blockNumber,trialNumber,'trial_onset',startTime,mode);
+    [soundOnset,triggerEvents] = SMART_Display('PresentTriggeredTexture', ...
+        cfg,state,textures.empty,trialTrigger,phase,blockNumber, ...
+        trialNumber,'trial_onset',startTime,mode);
     events = [events; triggerEvents];
-
-
-
-
-    % % Monitor for responses while the sound is playing
-    % earlyPressDetected = false;
-    % 
-    % audioStatus = PsychPortAudio('GetStatus',state.pahandle);
-    % while audioStatus.Active
-    %     earlyPressDetected = earlyPressDetected || SMART_Task('CheckEarlyResponse',state,mode);
-    %     SMART_Task('CheckEscape',state);
-    %     WaitSecs('YieldSecs',0.001);
-    %     audioStatus = PsychPortAudio('GetStatus',state.pahandle);
-    % end
-    % 
-    % % Wait through the participant-specific ISI
-    % soundOffset = GetSecs;
-    % isiFrames = round((cfg.currentISI_ms / 1000) / state.ifi);
-    % 
-    % for frame = 1:isiFrames
-    %     SMART_Display('DrawTextureBaseline',cfg,state,textures.empty);
-    %     Screen('Flip',state.window);
-    %     earlyPressDetected = earlyPressDetected || SMART_Task('CheckEarlyResponse',state,mode);
-    % end
-    % 
-    % % Enable the expected response and present the visual target
-    % SMART_Task('ClearResponseBuffer',state,mode);
-    % SMART_Task('SetResponseLED',cfg,state,mode,expectedResponse);
-    % 
-    % responseStart = GetSecs + cfg.startLeadTime;
-    % 
-    % [responseOnset,responseEvents] = SMART_Display('PresentTriggeredTexture',cfg,state,textures.target(expectedResponse),trialTrigger,phase, ...
-    %     blockNumber,trialNumber,'response_onset',responseStart,mode);
-    % events = [events; responseEvents];
-
-    % Obtain the actual audio timing reported by PsychPortAudio
-    % audioStatus = PsychPortAudio('GetStatus',state.pahandle);
-    % 
-    % if audioStatus.StartTime <= 0
-    %     error('PsychPortAudio did not return a valid sound onset time');
-    % end
 
     audioStatus = PsychPortAudio('GetStatus',state.pahandle);
 
@@ -166,7 +130,6 @@ function [result,events] = RunVisualTargetTrial(cfg,state,textures,audio,trial,m
         audioStatus = PsychPortAudio('GetStatus',state.pahandle);
     end
 
-    
     % Use the audio hardware timing as the experimental reference
     soundOnset = audioStatus.StartTime;
     
@@ -203,17 +166,14 @@ function [result,events] = RunVisualTargetTrial(cfg,state,textures,audio,trial,m
     
     events = [events; responseEvents];
 
-
-
-
-
     % Wait for the participant's response
     [pressedResponse,pressTime] = SMART_Task('WaitForTrialResponse',cfg,state,mode,responseOnset);
     SMART_Task('SetResponseLED',cfg,state,mode,0);
     
     % Send the response trigger
     responseTrigger = cfg.trigger.response(pressedResponse,:);
-    [~,pressEvents] = SMART_Display('PresentTriggeredTexture',cfg,state,textures.target(expectedResponse),responseTrigger,phase, ...
+    [~,pressEvents] = SMART_Display('PresentTriggeredTexture',cfg,state, ...
+        textures.target(expectedResponse),responseTrigger,phase, ...
         blockNumber,trialNumber,'response_press',pressTime,mode);
     events = [events; pressEvents];
     
@@ -233,7 +193,8 @@ function [result,events] = RunVisualTargetTrial(cfg,state,textures,audio,trial,m
     end
     
     % Store the trial results
-    result = SMART_Participant('MakeTrialResult',cfg,trial,phase,blockNumber,trialNumber,expectedResponse,pressedResponse,correct,reactionTime,slow, ...
+    result = SMART_Participant('MakeTrialResult',cfg,trial,phase,blockNumber, ...
+        trialNumber,expectedResponse,pressedResponse,correct,reactionTime,slow, ...
         earlyPressDetected,soundOnset,soundOffset,responseOnset,pressTime);
     
     % Restore the empty display
@@ -285,13 +246,6 @@ function WaitForAnyResponse(cfg,state,mode)
         while ~pressed
             Datapixx('RegWrRd');
             status = Datapixx('GetDinStatus');
-    
-            % if status.newLogFrames > 0
-            %     data = Datapixx('ReadDinLog');
-            %     pressed = any(ismember(data,cfg.buttonInputs));
-            %     Datapixx('SetDinLog');
-            %     Datapixx('RegWrRd');
-            % end
 
             if status.newLogFrames > 0
             
@@ -307,9 +261,6 @@ function WaitForAnyResponse(cfg,state,mode)
             
             end
 
-
-
-    
             SMART_Task('CheckEscape',state);
             WaitSecs('YieldSecs',0.001);
         end
@@ -318,13 +269,6 @@ function WaitForAnyResponse(cfg,state,mode)
         while ~released
             Datapixx('RegWrRd');
             status = Datapixx('GetDinStatus');
-    
-            % if status.newLogFrames > 0
-            %     data = Datapixx('ReadDinLog');
-            %     released = any(data == hex2dec('FFFF'));
-            %     Datapixx('SetDinLog');
-            %     Datapixx('RegWrRd');
-            % end
 
             if status.newLogFrames > 0
             
@@ -340,11 +284,6 @@ function WaitForAnyResponse(cfg,state,mode)
             
             end
 
-
-
-
-
-    
             SMART_Task('CheckEscape',state);
             WaitSecs('YieldSecs',0.001);
         end
@@ -382,11 +321,6 @@ function [response,pressTime] = WaitForTrialResponse(cfg,state,mode,responseOnse
             status = Datapixx('GetDinStatus');
     
             if status.newLogFrames > 0
-                % [data,timetags] = Datapixx('ReadDinLog');
-                % 
-                % for event = 1:numel(data)
-                %     candidate = find(cfg.buttonInputs == data(event),1);
-
 
                 [data,timetags] = Datapixx('ReadDinLog');
                 
@@ -397,13 +331,6 @@ function [response,pressTime] = WaitForTrialResponse(cfg,state,mode,responseOnse
                 
                     candidate = find(cfg.buttonInputs == currentState,1);
 
-
-
-
-
-
-
-    
                     if ~isempty(candidate)
                         response = candidate;
                         pressTime = timetags(event) + state.datapixxToGetSecsOffset;
@@ -459,24 +386,12 @@ function releaseTime = WaitForResponseRelease(cfg,state,mode)
     
             if status.newLogFrames > 0
                 [data,timetags] = Datapixx('ReadDinLog');
-                % released = find(data == hex2dec('FFFF'),1);
-
 
                 releaseState = bitand(uint16(data), ...
                                       uint16(cfg.buttonMask));
                 
                 released = find(releaseState == cfg.buttonReleaseState,1);
 
-
-
-
-
-
-
-
-
-
-    
                 if ~isempty(released)
                     releaseTime = timetags(released) + state.datapixxToGetSecsOffset;
                 end
@@ -516,8 +431,6 @@ function detected = CheckEarlyResponse(cfg,state,mode)
         status = Datapixx('GetDinStatus');
     
         if status.newLogFrames > 0
-            % data = Datapixx('ReadDinLog');
-            % detected = any(data ~= hex2dec('FFFF'));
 
             data = Datapixx('ReadDinLog');
             
@@ -525,9 +438,6 @@ function detected = CheckEarlyResponse(cfg,state,mode)
                                   uint16(cfg.buttonMask));
             
             detected = any(currentState ~= cfg.buttonReleaseState);
-
-
-
 
             Datapixx('SetDinLog');
             Datapixx('RegWrRd');
