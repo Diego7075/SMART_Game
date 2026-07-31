@@ -94,35 +94,78 @@ function [result,events] = RunGeneralizationTrial(cfg,state,textures,audio,trial
     % Present the auditory sequence together with the trial-onset trigger
     [soundOnset,triggerEvents] = SMART_Display('PresentTriggeredTexture',cfg,state,textures.empty,cfg.trigger.generalization,phase,blockNumber,globalTrial,'trial_onset',startTime,mode);
     events = [events; triggerEvents];
-    
-    earlyPressDetected = false;
-    audioStatus = PsychPortAudio('GetStatus',state.pahandle);
 
-    % Monitor for early responses while the sound is playing
-    while audioStatus.Active
-        earlyPressDetected = earlyPressDetected || SMART_Task('CheckEarlyResponse',state,mode);
-        SMART_Task('CheckEscape',state);
-        WaitSecs('YieldSecs',0.001);
-        audioStatus = PsychPortAudio('GetStatus',state.pahandle);
+
+
+    
+    % earlyPressDetected = false;
+    % audioStatus = PsychPortAudio('GetStatus',state.pahandle);
+    % 
+    % % Monitor for early responses while the sound is playing
+    % while audioStatus.Active
+    %     earlyPressDetected = earlyPressDetected || SMART_Task('CheckEarlyResponse',state,mode);
+    %     SMART_Task('CheckEscape',state);
+    %     WaitSecs('YieldSecs',0.001);
+    %     audioStatus = PsychPortAudio('GetStatus',state.pahandle);
+    % end
+    % 
+    % soundOffset = GetSecs;
+    % isiFrames = round((cfg.currentISI_ms / 1000) / state.ifi);
+    % 
+    % % Maintain the blank display during the participant-specific ISI
+    % for frame = 1:isiFrames
+    %         SMART_Display('DrawTextureBaseline',cfg,state,textures.empty);
+    %     Screen('Flip',state.window);
+    %     earlyPressDetected = earlyPressDetected || SMART_Task('CheckEarlyResponse',state,mode);
+    % end
+    % 
+    % % Enable the response buttons and present the response prompt
+    % SMART_Task('ClearResponseBuffer',state,mode);
+    % SMART_Task('SetAllResponseLEDs',cfg,state,mode,true);
+    % 
+    % responseStart = GetSecs + cfg.startLeadTime;
+    % 
+    % [responseOnset,responseEvents] = SMART_Display('PresentTriggeredTexture',cfg,state,textures.generalizationEmpty,cfg.trigger.generalization,phase,blockNumber,globalTrial,'response_onset', responseStart,mode);
+    % events = [events; responseEvents];
+
+    % Obtain the actual audio timing reported by PsychPortAudio
+    audioStatus = PsychPortAudio('GetStatus',state.pahandle);
+    
+    if audioStatus.StartTime <= 0
+        error('PsychPortAudio did not return a valid sound onset time');
     end
     
-    soundOffset = GetSecs;
-    isiFrames = round((cfg.currentISI_ms / 1000) / state.ifi);
+    % Use the audio hardware timing as the experimental reference
+    soundOnset = audioStatus.StartTime;
+    soundOffset = soundOnset + trial.soundDuration_ms / 1000;
     
-    % Maintain the blank display during the participant-specific ISI
-    for frame = 1:isiFrames
-            SMART_Display('DrawTextureBaseline',cfg,state,textures.empty);
-        Screen('Flip',state.window);
-        earlyPressDetected = earlyPressDetected || SMART_Task('CheckEarlyResponse',state,mode);
+    % Define the exact requested response onset
+    responseStart = soundOffset + cfg.currentISI_ms / 1000;
+    
+    % Monitor for responses throughout the sound and ISI
+    earlyPressDetected = false;
+    
+    while GetSecs < responseStart
+        earlyPressDetected = earlyPressDetected || ...
+            SMART_Task('CheckEarlyResponse',state,mode);
+    
+        SMART_Task('CheckEscape',state);
+        WaitSecs('YieldSecs',0.001);
     end
     
     % Enable the response buttons and present the response prompt
     SMART_Task('ClearResponseBuffer',state,mode);
     SMART_Task('SetAllResponseLEDs',cfg,state,mode,true);
+
+    [responseOnset,responseEvents] = SMART_Display( ...
+        'PresentTriggeredTexture',cfg,state, ...
+        textures.generalizationEmpty,cfg.trigger.generalization, ...
+        phase,blockNumber,globalTrial,'response_onset',responseStart,mode);
     
-    responseStart = GetSecs + cfg.startLeadTime;
-    [responseOnset,responseEvents] = SMART_Display('PresentTriggeredTexture',cfg,state,textures.generalizationEmpty,cfg.trigger.generalization,phase,blockNumber,globalTrial,'response_onset', responseStart,mode);
     events = [events; responseEvents];
+
+
+
     
     % Wait for the participant's button press
     [pressedResponse,pressTime] = SMART_Task('WaitForTrialResponse',cfg,state,mode,responseOnset);

@@ -118,36 +118,80 @@ function [result,events] = RunVisualTargetTrial(cfg,state,textures,audio,trial,m
     [soundOnset,triggerEvents] = SMART_Display('PresentTriggeredTexture',cfg,state,textures.empty,trialTrigger,phase,blockNumber,trialNumber,'trial_onset',startTime,mode);
     events = [events; triggerEvents];
 
-    % Monitor for responses while the sound is playing
-    earlyPressDetected = false;
-    
+
+
+
+    % % Monitor for responses while the sound is playing
+    % earlyPressDetected = false;
+    % 
+    % audioStatus = PsychPortAudio('GetStatus',state.pahandle);
+    % while audioStatus.Active
+    %     earlyPressDetected = earlyPressDetected || SMART_Task('CheckEarlyResponse',state,mode);
+    %     SMART_Task('CheckEscape',state);
+    %     WaitSecs('YieldSecs',0.001);
+    %     audioStatus = PsychPortAudio('GetStatus',state.pahandle);
+    % end
+    % 
+    % % Wait through the participant-specific ISI
+    % soundOffset = GetSecs;
+    % isiFrames = round((cfg.currentISI_ms / 1000) / state.ifi);
+    % 
+    % for frame = 1:isiFrames
+    %     SMART_Display('DrawTextureBaseline',cfg,state,textures.empty);
+    %     Screen('Flip',state.window);
+    %     earlyPressDetected = earlyPressDetected || SMART_Task('CheckEarlyResponse',state,mode);
+    % end
+    % 
+    % % Enable the expected response and present the visual target
+    % SMART_Task('ClearResponseBuffer',state,mode);
+    % SMART_Task('SetResponseLED',cfg,state,mode,expectedResponse);
+    % 
+    % responseStart = GetSecs + cfg.startLeadTime;
+    % 
+    % [responseOnset,responseEvents] = SMART_Display('PresentTriggeredTexture',cfg,state,textures.target(expectedResponse),trialTrigger,phase, ...
+    %     blockNumber,trialNumber,'response_onset',responseStart,mode);
+    % events = [events; responseEvents];
+
+    % Obtain the actual audio timing reported by PsychPortAudio
     audioStatus = PsychPortAudio('GetStatus',state.pahandle);
-    while audioStatus.Active
-        earlyPressDetected = earlyPressDetected || SMART_Task('CheckEarlyResponse',state,mode);
-        SMART_Task('CheckEscape',state);
-        WaitSecs('YieldSecs',0.001);
-        audioStatus = PsychPortAudio('GetStatus',state.pahandle);
+    
+    if audioStatus.StartTime <= 0
+        error('PsychPortAudio did not return a valid sound onset time');
     end
     
-    % Wait through the participant-specific ISI
-    soundOffset = GetSecs;
-    isiFrames = round((cfg.currentISI_ms / 1000) / state.ifi);
+    % Use the audio hardware timing as the experimental reference
+    soundOnset = audioStatus.StartTime;
+    soundOffset = soundOnset + trial.soundDuration_ms / 1000;
     
-    for frame = 1:isiFrames
-        SMART_Display('DrawTextureBaseline',cfg,state,textures.empty);
-        Screen('Flip',state.window);
-        earlyPressDetected = earlyPressDetected || SMART_Task('CheckEarlyResponse',state,mode);
+    % Define the exact requested response onset
+    responseStart = soundOffset + cfg.currentISI_ms / 1000;
+    
+    % Monitor for responses throughout the sound and ISI
+    earlyPressDetected = false;
+    
+    while GetSecs < responseStart
+        earlyPressDetected = earlyPressDetected || ...
+            SMART_Task('CheckEarlyResponse',state,mode);
+    
+        SMART_Task('CheckEscape',state);
+        WaitSecs('YieldSecs',0.001);
     end
     
     % Enable the expected response and present the visual target
     SMART_Task('ClearResponseBuffer',state,mode);
     SMART_Task('SetResponseLED',cfg,state,mode,expectedResponse);
-    
-    responseStart = GetSecs + cfg.startLeadTime;
-    [responseOnset,responseEvents] = SMART_Display('PresentTriggeredTexture',cfg,state,textures.target(expectedResponse),trialTrigger,phase, ...
+
+    [responseOnset,responseEvents] = SMART_Display( ...
+        'PresentTriggeredTexture',cfg,state, ...
+        textures.target(expectedResponse),trialTrigger,phase, ...
         blockNumber,trialNumber,'response_onset',responseStart,mode);
-    events = [events; responseEvents];
     
+    events = [events; responseEvents];
+
+
+
+
+
     % Wait for the participant's response
     [pressedResponse,pressTime] = SMART_Task('WaitForTrialResponse',cfg,state,mode,responseOnset);
     SMART_Task('SetResponseLED',cfg,state,mode,0);
