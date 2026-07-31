@@ -157,16 +157,33 @@ function [result,events] = RunGeneralizationTrial(cfg,state,textures,audio,trial
     % Define the exact requested response onset
     responseStart = soundOffset + cfg.currentISI_ms / 1000;
     
+    % % Monitor for responses throughout the sound and ISI
+    % earlyPressDetected = false;
+    % 
+    % while GetSecs < responseStart
+    %     earlyPressDetected = earlyPressDetected || ...
+    %         SMART_Task('CheckEarlyResponse',state,mode);
+    % 
+    %     SMART_Task('CheckEscape',state);
+    %     WaitSecs('YieldSecs',0.001);
+    % end
+
     % Monitor for responses throughout the sound and ISI
     earlyPressDetected = false;
     
     while GetSecs < responseStart
         earlyPressDetected = earlyPressDetected || ...
-            SMART_Task('CheckEarlyResponse',state,mode);
+            SMART_Task('CheckEarlyResponse',cfg,state,mode);
     
         SMART_Task('CheckEscape',state);
         WaitSecs('YieldSecs',0.001);
     end
+
+
+
+
+
+
     
     % Enable the response buttons and present the response prompt
     SMART_Task('ClearResponseBuffer',state,mode);

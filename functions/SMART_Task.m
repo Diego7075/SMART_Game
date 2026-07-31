@@ -186,7 +186,7 @@ function [result,events] = RunVisualTargetTrial(cfg,state,textures,audio,trial,m
     
     while GetSecs < responseStart
         earlyPressDetected = earlyPressDetected || ...
-            SMART_Task('CheckEarlyResponse',state,mode);
+            SMART_Task('CheckEarlyResponse',cfg,state,mode);
     
         SMART_Task('CheckEscape',state);
         WaitSecs('YieldSecs',0.001);
@@ -286,12 +286,29 @@ function WaitForAnyResponse(cfg,state,mode)
             Datapixx('RegWrRd');
             status = Datapixx('GetDinStatus');
     
+            % if status.newLogFrames > 0
+            %     data = Datapixx('ReadDinLog');
+            %     pressed = any(ismember(data,cfg.buttonInputs));
+            %     Datapixx('SetDinLog');
+            %     Datapixx('RegWrRd');
+            % end
+
             if status.newLogFrames > 0
+            
                 data = Datapixx('ReadDinLog');
-                pressed = any(ismember(data,cfg.buttonInputs));
+
+                currentState = bitand(uint16(data), ...
+                                      uint16(cfg.buttonMask));
+            
+                pressed = any(ismember(currentState,cfg.buttonInputs));
+            
                 Datapixx('SetDinLog');
                 Datapixx('RegWrRd');
+            
             end
+
+
+
     
             SMART_Task('CheckEscape',state);
             WaitSecs('YieldSecs',0.001);
@@ -302,12 +319,31 @@ function WaitForAnyResponse(cfg,state,mode)
             Datapixx('RegWrRd');
             status = Datapixx('GetDinStatus');
     
+            % if status.newLogFrames > 0
+            %     data = Datapixx('ReadDinLog');
+            %     released = any(data == hex2dec('FFFF'));
+            %     Datapixx('SetDinLog');
+            %     Datapixx('RegWrRd');
+            % end
+
             if status.newLogFrames > 0
+            
                 data = Datapixx('ReadDinLog');
-                released = any(data == hex2dec('FFFF'));
+            
+                currentState = bitand(uint16(data), ...
+                                      uint16(cfg.buttonMask));
+            
+                released = any(currentState == cfg.buttonReleaseState);
+            
                 Datapixx('SetDinLog');
                 Datapixx('RegWrRd');
+            
             end
+
+
+
+
+
     
             SMART_Task('CheckEscape',state);
             WaitSecs('YieldSecs',0.001);
@@ -346,10 +382,27 @@ function [response,pressTime] = WaitForTrialResponse(cfg,state,mode,responseOnse
             status = Datapixx('GetDinStatus');
     
             if status.newLogFrames > 0
+                % [data,timetags] = Datapixx('ReadDinLog');
+                % 
+                % for event = 1:numel(data)
+                %     candidate = find(cfg.buttonInputs == data(event),1);
+
+
                 [data,timetags] = Datapixx('ReadDinLog');
-    
+                
                 for event = 1:numel(data)
-                    candidate = find(cfg.buttonInputs == data(event),1);
+                
+                    currentState = bitand(uint16(data(event)), ...
+                                          uint16(cfg.buttonMask));
+                
+                    candidate = find(cfg.buttonInputs == currentState,1);
+
+
+
+
+
+
+
     
                     if ~isempty(candidate)
                         response = candidate;
@@ -406,7 +459,23 @@ function releaseTime = WaitForResponseRelease(cfg,state,mode)
     
             if status.newLogFrames > 0
                 [data,timetags] = Datapixx('ReadDinLog');
-                released = find(data == hex2dec('FFFF'),1);
+                % released = find(data == hex2dec('FFFF'),1);
+
+
+                releaseState = bitand(uint16(data), ...
+                                      uint16(cfg.buttonMask));
+                
+                released = find(releaseState == cfg.buttonReleaseState,1);
+
+
+
+
+
+
+
+
+
+
     
                 if ~isempty(released)
                     releaseTime = timetags(released) + state.datapixxToGetSecsOffset;
@@ -436,7 +505,8 @@ function releaseTime = WaitForResponseRelease(cfg,state,mode)
     end
 end
 
-function detected = CheckEarlyResponse(state,mode)
+% function detected = CheckEarlyResponse(state,mode)
+function detected = CheckEarlyResponse(cfg,state,mode)
     
     % Detect responses before the response period
     detected = false;
@@ -446,8 +516,19 @@ function detected = CheckEarlyResponse(state,mode)
         status = Datapixx('GetDinStatus');
     
         if status.newLogFrames > 0
+            % data = Datapixx('ReadDinLog');
+            % detected = any(data ~= hex2dec('FFFF'));
+
             data = Datapixx('ReadDinLog');
-            detected = any(data ~= hex2dec('FFFF'));
+            
+            currentState = bitand(uint16(data), ...
+                                  uint16(cfg.buttonMask));
+            
+            detected = any(currentState ~= cfg.buttonReleaseState);
+
+
+
+
             Datapixx('SetDinLog');
             Datapixx('RegWrRd');
         end

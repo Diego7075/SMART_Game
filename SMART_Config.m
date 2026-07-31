@@ -24,8 +24,8 @@ function cfg = SMART_Config(projectRoot)
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Screen numbers used by PTB
-    cfg.laptopScreenNumber = 0; % Primary monitor used during development (laptop)
-    % cfg.laptopScreenNumber = 1; % Primary monitor used during development (desktop)
+    % cfg.laptopScreenNumber = 0; % Primary monitor used during development (laptop)
+    cfg.laptopScreenNumber = 1; % Primary monitor used during development (desktop)
     cfg.laboratoryScreenNumber = 3; % VIEWPixx stimulus displays
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -49,17 +49,20 @@ function cfg = SMART_Config(projectRoot)
     % RESPONSEPixx values are assumed to match the first four buttons of the
     % five-button controller. Verify them with the four-button controller.
     cfg.buttonInputs = [ ...
-        hex2dec('FFFB'), ...
-        hex2dec('FFFD'), ...
-        hex2dec('FFFE'), ...
-        hex2dec('FFF7')];
+        hex2dec('000D'), ... % Yellow
+        hex2dec('000B'), ... % Green
+        hex2dec('0007'), ... % Blue
+        hex2dec('000E')];    % Red
     
     % Digital output values used to illuminate each RESPONSEPixx button
     cfg.ledOutputs = [ ...
-        hex2dec('00040000'), ...
-        hex2dec('00020000'), ...
-        hex2dec('00010000'), ...
-        hex2dec('00080000')];
+        hex2dec('00020000'), ... % Yellow
+        hex2dec('00040000'), ... % Green
+        hex2dec('00080000'), ... % Blue
+        hex2dec('00010000')];    % Red
+
+    cfg.buttonReleaseState = hex2dec('000F');
+    cfg.buttonMask = hex2dec('000F');
     
     % Pixel Mode trial triggers (red channel)
     cfg.trigger.practice = uint8([16 0 0]);
@@ -117,8 +120,8 @@ function cfg = SMART_Config(projectRoot)
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % PsychPortAudio output
-    % cfg.audioDeviceIndex = 1; % PTB chooses the system 48 KHz audio device (headphone jack - desktop)
-    cfg.audioDeviceIndex = 2; % PTB chooses the system 48 KHz audio device (speakers - laptop)
+    cfg.audioDeviceIndex = 1; % PTB chooses the system 48 KHz audio device (headphone jack - desktop)
+    % cfg.audioDeviceIndex = 2; % PTB chooses the system 48 KHz audio device (speakers - laptop)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % PTB settings
