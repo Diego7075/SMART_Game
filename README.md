@@ -129,15 +129,3 @@ Before collecting experimental data, it is recommended to:
 3. Test Full Hardware mode.
 4. Verify Pixel Mode triggers.
 
-### Reducing the number of trials during development
-
-For debugging purposes, both `SMART_Task.m` and `SMART_Generalization.m` contain the following temporary code block:
-
-```matlab
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Temporary: keep only two trials while testing (comment to nulify)
-order = order(1:2);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-```
-
-Leaving this code active limits each randomized block to two trials. Comment out (or remove) these lines before running the complete experiment.
