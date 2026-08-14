@@ -1,11 +1,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SMART
 %
-% This script coordinates the complete experimental workflow. It loads the
-% participant assignment, initializes the visual and auditory hardware,
-% executes the three phases (practice, learning task, and generalization),
-% saves participant data, and performs a controlled shutdown in case of
-% either successful completion or an error
+% This script coordinates the complete experimental workflow. It selects
+% the execution mode and audio output, loads the participant assignment,
+% initializes the visual and auditory hardware, executes the three phases
+% (practice, learning task, and generalization), saves participant data,
+% and performs a controlled shutdown after successful completion or error
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 sca;
@@ -14,33 +14,42 @@ clc;
 
 % Locate directory and make all functions (within the functions folder) available
 projectRoot = fileparts(mfilename('fullpath'));
-addpath(fullfile(projectRoot,'functions'));
+functionsFolder = fullfile(projectRoot,'functions');
+
+if exist(functionsFolder,'dir')
+    addpath(functionsFolder);
+end
 
 % Load the experiment configuration
 cfg = SMART_Config(projectRoot);
 
 % Ask whether to use laptop visualization or the complete hardware chain
+% and to run the quick test or complete experiment
 mode = SMART_Initialize('SelectExecutionMode');
-
-% Requests a valid participant identifier and prevents unsafe filenames
-participantID = SMART_Participant('RequestParticipantID',cfg);
-
-% Assign the participant to the least represented ISI (i.e. 0 ms, 250 ms) x mapping 
-% (i.e. AXBY, XAYB) condition and generate the participant-specific randomization seed
-assignment = SMART_Participant('AssignParticipantConditions',cfg,participantID);
-cfg.currentISI_ms = assignment.isiMs;
-rng(assignment.randomSeed,'twister');
 
 try
 
-    % Load all trial definitions (practice, task, generalization) from excel spreadsheets
+    % Select and initialize the audio output before participant setup
+    [audioCfg,pahandle] = initialize_audio_output;
+
+    % Request a valid participant identifier and prevent unsafe filenames
+    participantID = SMART_Participant('RequestParticipantID',cfg);
+
+    % Assign the participant to the least represented ISI x mapping condition
+    % and generate the participant-specific randomization seed
+    assignment = SMART_Participant('AssignParticipantConditions',cfg,participantID);
+    cfg.currentISI_ms = assignment.isiMs;
+    rng(assignment.randomSeed,'twister');
+
+    % Load all trial definitions (practice, task, generalization) from Excel spreadsheets
     trials = SMART_Participant('LoadSMARTTrials',cfg,assignment);
 
     % Preload the audio stimuli into memory
-    audio = SMART_Initialize('LoadSMARTAudio',cfg,trials);
+    audio = SMART_Initialize('LoadSMARTAudio',trials);
 
     % Initialize PTB and the selected hardware pipeline
-    state = SMART_Initialize('InitializeSMART',cfg,mode,audio.sampleRate);
+    state = SMART_Initialize('InitializeSMART', ...
+        cfg,mode,audio.sampleRate,audioCfg,pahandle);
 
     % Generate the graphical textures
     textures = SMART_Initialize('CreateSMARTTextures',cfg,state);
@@ -108,6 +117,15 @@ catch ME
         SMART_Initialize('ShutdownSMART',state,textures);
     catch
         sca;
+    end
+
+    % If initialization failed before state was created, close the audio
+    % device that was opened during startup
+    if ~exist('state','var') && exist('pahandle','var')
+        try
+            PsychPortAudio('Close',pahandle);
+        catch
+        end
     end
 
     rethrow(ME);

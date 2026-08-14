@@ -24,9 +24,9 @@ function cfg = SMART_Config(projectRoot)
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Screen numbers used by PTB
-    % cfg.laptopScreenNumber = 0; % Primary monitor used during development (laptop)
-    cfg.laptopScreenNumber = 1; % Primary monitor used during development (desktop)
-    cfg.laboratoryScreenNumber = 3; % VIEWPixx stimulus displays
+    cfg.laptopScreenNumber = 0; % Primary monitor used during development (laptop)
+    % cfg.laptopScreenNumber = 1; % Primary monitor used during development (desktop)
+    cfg.laboratoryScreenNumber = 2; % VIEWPixx stimulus displays
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % RGB colors used throughout the experiment
@@ -113,26 +113,25 @@ function cfg = SMART_Config(projectRoot)
     cfg.progressBarHeightRatio = 0.025;
     cfg.progressBarYRatio = 0.90;
     
-    % PsychPortAudio settings
-    cfg.audioLatencyClass = 2; % PTB latency mode (higher = lower latency)
-    cfg.audioChannels = 2; % Stereo playback
-    cfg.audioVolume = 1.0;  % Full playback volume
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % PsychPortAudio output
-    cfg.audioDeviceIndex = 1; % PTB chooses the system 48 KHz audio device (headphone jack - desktop)
-    % cfg.audioDeviceIndex = 2; % PTB chooses the system 48 KHz audio device (speakers - laptop)
+    % Audio initialization and timing    
+    % Babyface and Realtek values were validated using
+    % viewpixx_audio_latency_test.m. Revalidate these values if the audio
+    % hardware or its configuration changes.
+    cfg.babyfaceLagCompensation = 0.005;       % Babyface WASAPI @ 512 samples
+    cfg.realtekLagCompensation = -0.028;       % Realtek WASAPI
+    
+    % SMART audio files contain 50 ms of silence before audible sound onset
+    cfg.leadingSilenceCompensation = 0.050;    % 50 ms FileStart -> FirstAudio
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % PTB settings
     cfg.skipSyncTestsVisualization = 1; % Skip timing tests while developing (specific for the laptop)
     cfg.skipSyncTestsFullPipeline = 0; % Run timing tests during experiments (specific for the ViewPixx)
     cfg.visualDebugLevel = 0; % Disable PTB startup splash screens
-    cfg.conserveVRAM = 16384; % Compatibility flag for some graphics cards
     
     % Timing precision
-    cfg.startLeadTime = 0.100; % Schedule flips and audio 100 ms in advance
-    cfg.minimumFrameTolerance = 0.001; % Allowed timing error (s)
+    cfg.startLeadTime = 0.200; % Schedule flips and audio 200 ms in advance
     
     % Practice passing criteria
     cfg.practiceRequiresPerfectAccuracy = true;

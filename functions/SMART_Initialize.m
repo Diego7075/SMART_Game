@@ -69,16 +69,15 @@ function varargout = SMART_Initialize(action,varargin)
     end
 end
 
-function state = InitializeSMART(cfg,mode,sampleRate)
+function state = InitializeSMART(cfg,mode,sampleRate,audioCfg,pahandle)
 
     % Prepare PTB and the keyboard mapping
     PsychDefaultSetup(2);
     AssertOpenGL;
-    InitializePsychSound(1);
     KbName('UnifyKeyNames');
     state.escapeKey = KbName('ESCAPE');
     state.keyboardKeys = [KbName('d'),KbName('f'),KbName('j'),KbName('k')];
-    
+        
     % Choose which display configuration to use (hardware chain or laptop)
     if mode.useHardware
         screenNumber = cfg.laboratoryScreenNumber;
@@ -89,7 +88,6 @@ function state = InitializeSMART(cfg,mode,sampleRate)
     end
     
     Screen('Preference','VisualDebugLevel',cfg.visualDebugLevel);
-    Screen('Preference','ConserveVRAM',cfg.conserveVRAM);
     
     % Store the experiment settings and prepare the state structure
     state.mode = mode;
@@ -120,11 +118,56 @@ function state = InitializeSMART(cfg,mode,sampleRate)
         state.datapixxToGetSecsOffset = NaN;
     end
     
+    % Store the audio device that was initialized before participant setup
+    state.pahandle = pahandle;
+    state.audioOpen = true;
+    
+    % Verify that the selected audio device matches the stimulus sampling rate
+    if audioCfg.sampleRate ~= sampleRate
+        error(['Audio stimulus sampling rate (%d Hz) does not match the ' ...
+               'audio output sampling rate (%d Hz).'], ...
+               sampleRate,audioCfg.sampleRate);
+    end
+    
+    % Select the timing compensation for the chosen audio pathway
+    if strcmp(audioCfg.audioPath,'realtek')
+    
+        audioLagCompensation = cfg.realtekLagCompensation;
+    
+    elseif strcmp(audioCfg.audioPath,'babyface')
+    
+        audioLagCompensation = cfg.babyfaceLagCompensation;
+    
+    elseif strcmp(audioCfg.audioPath,'speaker')
+    
+        % Computer speakers are intended only for development/troubleshooting
+        % Their physical audio latency has not been calibrated
+        audioLagCompensation = 0;
+    
+        warning(['Computer speakers selected. No audio-path latency ' ...
+                 'compensation has been validated for this output.']);
+    
+    else
+    
+        error('Unknown audio pathway: %s',audioCfg.audioPath);
+    
+    end
+    
+    % Apply the total audio timing correction
+    latencyBias = audioLagCompensation + cfg.leadingSilenceCompensation;
+    PsychPortAudio('LatencyBias',state.pahandle,latencyBias);
+    
+    % Store the audio configuration used for this experiment
+    state.audioCfg = audioCfg;
+    state.audioLagCompensation = audioLagCompensation;
+    state.leadingSilenceCompensation = cfg.leadingSilenceCompensation;
+    state.latencyBias = latencyBias;
+
     % Open the experiment window
     [state.window,state.windowRect] = Screen('OpenWindow',screenNumber,cfg.backgroundColor);
     state.windowOpen = true;
     
-    % Measure the monitor timing and open the audio device
+    % Measure the monitor timing
     Screen('ColorRange',state.window,255);
     Screen('BlendFunction',state.window,GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     state.ifi = Screen('GetFlipInterval',state.window);
@@ -133,11 +176,7 @@ function state = InitializeSMART(cfg,mode,sampleRate)
     if mode.useHardware && abs(state.refreshRate - 120) > 1
         error('VIEWPixx refresh rate is %.3f Hz instead of approximately 120 Hz',state.refreshRate);
     end
-    
-    state.isiFrames = round((cfg.startLeadTime * 0) / state.ifi);
-    state.pahandle = PsychPortAudio('Open',cfg.audioDeviceIndex,1,cfg.audioLatencyClass,sampleRate,cfg.audioChannels);
-    state.audioOpen = true;
-    PsychPortAudio('Volume',state.pahandle,cfg.audioVolume);
+            
     Priority(MaxPriority(state.window));
     
     % Everything is ready, so hide the cursor and lock keyboard input
@@ -189,7 +228,7 @@ function ShutdownSMART(state,~)
     sca;
 end
 
-function audio = LoadSMARTAudio(cfg,trials)
+function audio = LoadSMARTAudio(trials)
 
     % Gather every sound file used during the experiment
     allPaths = [trials.practice.SoundPath;trials.task.SoundPath;trials.violation.SoundPath;trials.generalization.SoundPath];
@@ -234,8 +273,6 @@ function audio = LoadSMARTAudio(cfg,trials)
         audio.durations(index) = size(waveform,2) / sampleRate;
         audio.index(path) = index;
     end
-    
-    audio.volume = cfg.audioVolume;
 end
 
 function mode = SelectExecutionMode
