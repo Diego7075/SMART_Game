@@ -78,12 +78,22 @@ function state = InitializeSMART(cfg,mode,sampleRate,audioCfg,pahandle)
     state.escapeKey = KbName('ESCAPE');
     state.keyboardKeys = [KbName('d'),KbName('f'),KbName('j'),KbName('k')];
         
-    % Choose which display configuration to use (hardware chain or laptop)
+    % Choose stimulus display independently of hardware mode
+    switch lower(cfg.displayEnvironment)
+        case 'laptop'
+            screenNumber = cfg.laptopScreenNumber;
+    
+        case 'laboratory'
+            screenNumber = cfg.laboratoryScreenNumber;
+    
+        otherwise
+            error('Unknown display environment: %s', cfg.displayEnvironment);
+    end
+    
+    % Sync-test behavior depends on execution mode
     if mode.useHardware
-        screenNumber = cfg.laboratoryScreenNumber;
         Screen('Preference','SkipSyncTests',cfg.skipSyncTestsFullPipeline);
     else
-        screenNumber = cfg.laptopScreenNumber;
         Screen('Preference','SkipSyncTests',cfg.skipSyncTestsVisualization);
     end
     

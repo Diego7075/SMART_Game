@@ -23,10 +23,12 @@ function cfg = SMART_Config(projectRoot)
     cfg.assignmentFile = fullfile(cfg.dataFolder,'ISI_Assignments.csv');
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Display configuration
+    cfg.displayEnvironment = 'laptop';   % 'laptop' or 'laboratory'
+    
     % Screen numbers used by PTB
-    cfg.laptopScreenNumber = 0; % Primary monitor used during development (laptop)
-    % cfg.laptopScreenNumber = 1; % Primary monitor used during development (desktop)
-    cfg.laboratoryScreenNumber = 2; % VIEWPixx stimulus displays
+    cfg.laptopScreenNumber = 0;          % Laptop built-in display
+    cfg.laboratoryScreenNumber = 2;      % VIEWPixx stimulus display
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % RGB colors used throughout the experiment

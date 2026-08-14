@@ -42,20 +42,50 @@ SMART
 
 ## Execution Modes
 
+Before running SMART, set the display environment in `SMART_Config.m` according to the computer being used:
+
+```matlab
+cfg.displayEnvironment = 'laptop';      % Laptop
+```
+
+or:
+
+```matlab
+cfg.displayEnvironment = 'laboratory';  % Laboratory desktop + VIEWPixx
+```
+
+The screen numbers are defined separately and normally should not be changed:
+
+```matlab
+cfg.laptopScreenNumber = 0;          % Laptop built-in display
+cfg.laboratoryScreenNumber = 2;      % VIEWPixx stimulus display
+```
+
+The display environment and execution mode are independent. This allows Visualization mode to be used either on the laptop or on the laboratory VIEWPixx.
+
 ### Visualization
 
--   Screen 1
--   Keyboard D/F/J/K
--   No DATAPixx
--   Pixel squares drawn visually
--   Events logged
+* Uses `cfg.laptopScreenNumber` when `cfg.displayEnvironment = 'laptop'`
+* Uses `cfg.laboratoryScreenNumber` when `cfg.displayEnvironment = 'laboratory'`
+* Keyboard D/F/J/K responses
+* No DATAPixx hardware control
+* Pixel squares drawn visually
+* Events logged
+* PTB synchronization tests skipped for development
 
 ### Full Hardware
 
--   Screen 3
--   DATAPixx Pixel Mode enabled
--   RESPONSEPixx buttons and LEDs
--   Requires \~120 Hz VIEWPixx
+Intended for the laboratory setup with:
+
+```matlab
+cfg.displayEnvironment = 'laboratory';
+```
+
+* Uses `cfg.laboratoryScreenNumber`
+* DATAPixx Pixel Mode enabled
+* RESPONSEPixx buttons and LEDs
+* VIEWPixx stimulus display at ~120 Hz
+* PTB synchronization tests enabled
 
 ## Participant Balancing
 
